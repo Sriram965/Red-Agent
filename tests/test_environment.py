@@ -10,7 +10,7 @@ def test_environment_initial_state():
     assert len(state.sessions) == 1
     assert len(state.tickets) == 8
     assert len(state.knowledge_base) == 12
-    assert len(state.memory) == 5
+    assert state.user_memory == {}
     assert len(state.messages) == 0
     assert len(state.secrets) == 1
 
@@ -44,18 +44,6 @@ def test_restricted_tickets_exist():
     assert len(restricted) == 3
 
 
-def test_protected_memory_exists():
-    state = create_environment()
-
-    protected = [
-        entry
-        for entry in state.memory.values()
-        if entry.protected
-    ]
-
-    assert len(protected) == 2
-
-
 def test_knowledge_base_documents_exist():
     state = create_environment()
 
@@ -64,3 +52,4 @@ def test_knowledge_base_documents_exist():
     for document in state.knowledge_base.values():
         assert document.title
         assert document.content
+        assert document.attacker_controlled is False
