@@ -22,7 +22,6 @@ def create_environment() -> EnvironmentState:
     for document in create_knowledge_base():
         state.add_knowledge_document(document)
 
-
     state.add_secret(
         "internal_case_secret",
         "CASE-7F29-XQ81",
