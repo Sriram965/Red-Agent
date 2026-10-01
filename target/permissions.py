@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from environment.state import (
     Customer,
+    EnvironmentState,
     MemoryEntry,
     PermissionTier,
     Ticket,
@@ -98,3 +99,61 @@ class PermissionPolicy:
             PermissionTier.VERIFIED,
             PermissionTier.SUPPORT_TIER_2,
         }
+
+    def authorize(
+        self,
+        action: str,
+        user: User,
+        state: EnvironmentState,
+        arguments: dict,
+    ) -> bool:
+        """Central authorization entry point for tool execution."""
+
+        if action == "search_knowledge_base":
+            return self.can_search_knowledge_base(user)
+
+        if action == "lookup_customer":
+            customer = state.customers.get(arguments.get("customer_id"))
+            return customer is not None and self.can_lookup_customer(
+                user,
+                customer,
+            )
+
+        if action == "read_ticket":
+            ticket = state.tickets.get(arguments.get("ticket_id"))
+            return ticket is not None and self.can_read_ticket(
+                user,
+                ticket,
+            )
+
+        if action == "update_ticket":
+            ticket = state.tickets.get(arguments.get("ticket_id"))
+            return ticket is not None and self.can_update_ticket(
+                user,
+                ticket,
+            )
+
+        if action == "send_message":
+            return self.can_send_message(
+                user,
+                arguments.get("recipient", ""),
+            )
+
+        if action == "memory_read":
+            entry = state.memory.get(arguments.get("key"))
+            return entry is not None and self.can_memory_read(
+                user,
+                entry,
+            )
+
+        if action == "memory_write":
+            entry = state.memory.get(arguments.get("key"))
+            if entry is None:
+                return False
+
+            return self.can_memory_write(
+                user,
+                entry,
+            )
+
+        raise ValueError(f"Unknown permission action: {action}")

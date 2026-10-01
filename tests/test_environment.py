@@ -1,5 +1,5 @@
 from environment.bootstrap import create_environment
-from environment.state import PermissionTier, TrustLevel
+from environment.state import PermissionTier
 
 
 def test_environment_initial_state():
@@ -9,7 +9,7 @@ def test_environment_initial_state():
     assert len(state.customers) == 4
     assert len(state.sessions) == 1
     assert len(state.tickets) == 8
-    assert len(state.knowledge_base) == 4
+    assert len(state.knowledge_base) == 12
     assert len(state.memory) == 5
     assert len(state.messages) == 0
     assert len(state.secrets) == 1
@@ -56,10 +56,11 @@ def test_protected_memory_exists():
     assert len(protected) == 2
 
 
-def test_knowledge_base_documents_are_untrusted():
+def test_knowledge_base_documents_exist():
     state = create_environment()
 
-    assert all(
-        document.trust_level == TrustLevel.UNTRUSTED
-        for document in state.knowledge_base.values()
-    )
+    assert len(state.knowledge_base) == 12
+
+    for document in state.knowledge_base.values():
+        assert document.title
+        assert document.content

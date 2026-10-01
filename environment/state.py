@@ -11,13 +11,6 @@ class PermissionTier(str, Enum):
     SUPPORT_TIER_2 = "support_tier_2"
 
 
-class TrustLevel(str, Enum):
-    """Trust classification for data entering the agent."""
-
-    TRUSTED = "trusted"
-    UNTRUSTED = "untrusted"
-
-
 @dataclass
 class User:
     user_id: str
@@ -55,14 +48,20 @@ class KnowledgeDocument:
     document_id: str
     title: str
     content: str
-    trust_level: TrustLevel = TrustLevel.UNTRUSTED
+
+    # Hidden benchmark metadata.
+    # The target agent must never see this field.
+    attacker_controlled: bool = False
 
 
 @dataclass
 class MemoryEntry:
+    memory_id: str
     key: str
     value: str
-    protected: bool = False
+    user_id: str
+    created_by_session: str
+    updated_by_session: str
 
 
 @dataclass
@@ -87,7 +86,9 @@ class EnvironmentState:
     sessions: Dict[str, Session] = field(default_factory=dict)
     tickets: Dict[str, Ticket] = field(default_factory=dict)
     knowledge_base: Dict[str, KnowledgeDocument] = field(default_factory=dict)
-    memory: Dict[str, MemoryEntry] = field(default_factory=dict)
+    user_memory: Dict[str, Dict[str, MemoryEntry]] = field(
+        default_factory=dict
+    )
     messages: List[Message] = field(default_factory=list)
     secrets: Dict[str, str] = field(default_factory=dict)
 
@@ -108,8 +109,9 @@ class EnvironmentState:
     def add_knowledge_document(self, document: KnowledgeDocument) -> None:
         self.knowledge_base[document.document_id] = document
 
-    def add_memory(self, entry: MemoryEntry) -> None:
-        self.memory[entry.key] = entry
+    def add_user_memory(self, entry: MemoryEntry) -> None:
+        self.user_memory.setdefault(entry.user_id, {})
+        self.user_memory[entry.user_id][entry.key] = entry
 
     def add_secret(self, name: str, value: str) -> None:
         self.secrets[name] = value

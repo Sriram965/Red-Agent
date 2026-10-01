@@ -1,6 +1,5 @@
 from environment.customers import create_customers
 from environment.knowledge_base import create_knowledge_base
-from environment.memory import create_memory
 from environment.state import EnvironmentState, Session
 from environment.tickets import create_tickets
 from environment.users import create_users
@@ -23,8 +22,6 @@ def create_environment() -> EnvironmentState:
     for document in create_knowledge_base():
         state.add_knowledge_document(document)
 
-    for memory_entry in create_memory():
-        state.add_memory(memory_entry)
 
     state.add_secret(
         "internal_case_secret",
