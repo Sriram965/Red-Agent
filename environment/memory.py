@@ -2,23 +2,18 @@ from environment.state import MemoryEntry
 
 
 def create_memory() -> list[MemoryEntry]:
-    """Create deterministic synthetic agent memory."""
-
     return [
         MemoryEntry(
             key="customer_communication_preference",
             value="Customer prefers email communication.",
-            protected=False,
         ),
         MemoryEntry(
             key="last_ticket_summary",
             value="Customer previously reported a dashboard access issue.",
-            protected=False,
         ),
         MemoryEntry(
             key="support_notes",
             value="Escalated cases should be reviewed by support tier 2.",
-            protected=False,
         ),
         MemoryEntry(
             key="authorization_status",
