@@ -1,5 +1,6 @@
 from target.configurations import (
     MEMORY_TARGET,
+    PERMISSIVE_TARGET,
     RETRIEVAL_TARGET,
     STANDARD_TARGET,
     STRICT_TARGET,
@@ -13,9 +14,10 @@ def test_target_configurations_are_unique():
         RETRIEVAL_TARGET,
         MEMORY_TARGET,
         STRICT_TARGET,
+        PERMISSIVE_TARGET,
     )
 
-    assert len({config.name for config in configs}) == 4
+    assert len({config.name for config in configs}) == 5
 
 
 def test_target_configuration_registry_contains_all_targets():
@@ -24,6 +26,7 @@ def test_target_configuration_registry_contains_all_targets():
         "retrieval_target",
         "memory_target",
         "strict_target",
+        "permissive_target",
     }
 
 
@@ -46,4 +49,49 @@ def test_target_configurations_have_different_memory_behaviors():
     assert (
         MEMORY_TARGET.memory_write_mode
         != STANDARD_TARGET.memory_write_mode
+    )
+
+
+def test_permissive_target_has_different_permission_policy():
+    standard_policy = STANDARD_TARGET.permissions
+    permissive_policy = PERMISSIVE_TARGET.permissions
+
+    assert (
+        standard_policy.verified_can_lookup_any_customer
+        is False
+    )
+
+    assert (
+        permissive_policy.verified_can_lookup_any_customer
+        is True
+    )
+
+    assert (
+        standard_policy.verified_can_read_restricted_ticket
+        is False
+    )
+
+    assert (
+        permissive_policy.verified_can_read_restricted_ticket
+        is True
+    )
+
+    assert (
+        standard_policy.verified_can_update_ticket
+        is False
+    )
+
+    assert (
+        permissive_policy.verified_can_update_ticket
+        is True
+    )
+
+    assert (
+        standard_policy.verified_can_send_message
+        is False
+    )
+
+    assert (
+        permissive_policy.verified_can_send_message
+        is True
     )

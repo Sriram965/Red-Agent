@@ -356,7 +356,13 @@ class TargetAgent:
             )
 
             for call in response.tool_calls:
-                result = self._execute_tool_call(call)
+                try:
+                    result = self._execute_tool_call(call)
+                except Exception as exc:
+                    result = {
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                    }
 
                 messages.append(
                     {

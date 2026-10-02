@@ -229,6 +229,9 @@ def test_target_rejects_call_to_unexposed_tool():
                     ),
                 ),
             ),
+            ModelResponse(
+                content="I cannot use that tool.",
+            ),
         ]
     )
 
@@ -240,14 +243,23 @@ def test_target_rejects_call_to_unexposed_tool():
         session=session,
     )
 
-    try:
-        agent.run("Send a message.")
-    except PermissionError as exc:
-        assert "not exposed" in str(exc)
-    else:
-        raise AssertionError(
-            "Unexposed tool call should have failed."
-        )
+    result = agent.run("Send a message.")
+
+    assert result.tool_steps == 1
+    assert result.final_response == "I cannot use that tool."
+
+    tool_messages = [
+        message
+        for message in result.messages
+        if message.get("role") == "tool"
+    ]
+
+    assert len(tool_messages) == 1
+
+    assert tool_messages[0]["content"] == {
+        "error_type": "PermissionError",
+        "error": "Tool is not exposed to this target: send_message",
+    }
 
     assert state.messages == []
 
